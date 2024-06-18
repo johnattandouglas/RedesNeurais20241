@@ -109,12 +109,8 @@ n_features_out = y.shape[2]
 # print(n_steps_in, n_features_in)
 # print(n_steps_out, n_features_out)
 
-
-# ________________________ GRID SEARCH ________________________ 
-
-
 # Função para criar e compilar o modelo com os hiperparâmetros específicos
-def create_model(neurons, batch_size, learning_rate, activation='relu'):
+def create_model(neurons, batch_size, learning_rate, activation):
     inputs = Input(shape=(n_steps_in, n_features_in))
     layer2 = LSTM(neurons, activation=activation, return_sequences=True)(inputs)
     output = tf.keras.layers.TimeDistributed(Dense(n_features_out))(layer2)
@@ -122,13 +118,16 @@ def create_model(neurons, batch_size, learning_rate, activation='relu'):
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), loss='mse')
     return model
 
+# ________________________ GRID SEARCH ________________________ 
+
+
 # Parametros de teste
 neurons_list = [50, 100, 150, 200, 250, 300]
 batch_size_list = [4, 8, 16, 32]
-learning_rate_list = [0.00001, 0.0001, 0.001, 0.01]
-activation_list = ['linear', 'relu', 'tahn']
+learning_rate_list = [0.00001, 0.0001, 0.001]
+activation_list = ['linear', 'relu', 'tanh']
 
-qntEpocas = 5
+qntEpocas = 100
 
 best_score = float('inf')
 best_params = {}
