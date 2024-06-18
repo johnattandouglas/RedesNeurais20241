@@ -10,9 +10,8 @@
 #SBATCH --output=saida.out
 #SBATCH --error=erros.err
 
-module load Python/3.9.6
+module load Python/3.10
 
-python -m venv $HOME/lorien
 # Ativando o módulo
 source $HOME/lorien/bin/activate
 
