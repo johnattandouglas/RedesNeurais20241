@@ -1,20 +1,21 @@
+
 import numpy as np
 import os
 import tensorflow as tf
 import pandas as pd
 
 from sklearn import metrics
-
+from sklearn.model_selection import GridSearchCV
 from tensorflow import keras
-
+from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 from keras.models import Model
 from keras.utils import plot_model
 from keras.callbacks import EarlyStopping
 # from keras.models import Modelconda 
-from keras.layers import Input, LSTM, Dense, RepeatVector, TimeDistributed
+from keras.layers import Input, LSTM, Dense, TimeDistributed
 
-from helperFunctions import split_dataset_by_window, split_dataset, scaler, printFeatOutput, find_by_average_error
-from plots import plot_epoch_history, plot_results
+from helperFunctions import split_dataset_by_window, split_dataset, scaler
+
 
 # numero de produtores
 n_prod=4
@@ -104,31 +105,30 @@ n_features_out = y.shape[2]
 # print(n_steps_in, n_features_in)
 # print(n_steps_out, n_features_out)
 
-# ________________________ Modelo ________________________
+# Função para criar e compilar o modelo com os hiperparâmetros específicos
+def create_model(batch_size=256, learning_rate=0.0008, activation='relu'):
+    inputs = Input(shape=(n_steps_in, n_features_in))
+    layer2 = LSTM(192, activation=activation, return_sequences=True)(inputs)
+    output = tf.keras.layers.TimeDistributed(Dense(n_features_out))(layer2)
+    model = Model(inputs=inputs, outputs=output)
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), loss='mse')
+    return model
 
-inputs = Input(shape=(n_steps_in, n_features_in))
-#layer1 = LSTM(192, activation='relu')(inputs)
-#repeat = tf.keras.layers.RepeatVector(n_steps_out)(layer1)
-layer2 = LSTM(192, activation='relu', return_sequences=True)(inputs)
-output = tf.keras.layers.TimeDistributed(Dense(n_features_out))(layer2)
-model = tf.keras.Model(inputs=inputs, outputs=output)
+# Criar o wrapper do modelo para o scikit-learn
+modelo = KerasRegressor(build_fn=create_model, verbose=0)
 
-model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0008), loss='mse')
-# print(model.summary())
+# Definir os parâmetros que você deseja testar no grid search
+param_grid = {
+    'batch_size': [4, 20, 64],
+    'learning_rate': [0.0001, 0.0005],
+    'activation': ['relu', 'tanh']
+    # 'activation': ['relu', 'tanh', 'linear']
+}
 
-monitor = EarlyStopping(monitor='val_loss',
-                        min_delta=1e-4,
-                        patience=10,
-                        verbose=2,
-                        mode='auto',
-                        restore_best_weights=True)
+# Realizar o grid search
+grid_search = GridSearchCV(estimator=modelo, param_grid=param_grid, cv=3)
+grid_result = grid_search.fit(X_train, y_train)
 
-history = model.fit(X_train, y_train,
-                    validation_data=(X_val, y_val),
-                    callbacks=[monitor],
-                    verbose=1,
-                    batch_size=256,
-                    epochs=500,
-                    validation_split=0.2)
-
-plot_epoch_history(history)
+# Exibir os melhores parâmetros encontrados
+print("Melhores parâmetros encontrados: ", grid_result.best_params_)
+print("Melhor score encontrado: ", grid_result.best_score_)
