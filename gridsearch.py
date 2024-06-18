@@ -1,6 +1,7 @@
 
 import numpy as np
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # 0 (default), 1 (WARNING), 2 (ERROR), 3 (FATAL)
 import tensorflow as tf
 import pandas as pd
 
@@ -12,6 +13,7 @@ from keras.utils import plot_model
 from keras.callbacks import EarlyStopping
 # from keras.models import Modelconda 
 from keras.layers import Input, LSTM, Dense, TimeDistributed
+import csv
 
 
 from sklearn.metrics import mean_squared_error
@@ -112,7 +114,7 @@ n_features_out = y.shape[2]
 
 
 # Função para criar e compilar o modelo com os hiperparâmetros específicos
-def create_model(neurons=100, batch_size=256, learning_rate=0.0008, activation='relu'):
+def create_model(neurons, batch_size, learning_rate, activation='relu'):
     inputs = Input(shape=(n_steps_in, n_features_in))
     layer2 = LSTM(neurons, activation=activation, return_sequences=True)(inputs)
     output = tf.keras.layers.TimeDistributed(Dense(n_features_out))(layer2)
@@ -120,35 +122,47 @@ def create_model(neurons=100, batch_size=256, learning_rate=0.0008, activation='
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), loss='mse')
     return model
 
-# Definir os parâmetros que você deseja testar
-neurons_list = [100, 200, 300]
-batch_size_list = [4, 20, 64]
-learning_rate_list = [0.0001, 0.0005]
-activation_list = ['relu', 'tanh']
+# Parametros de teste
+neurons_list = [50, 100, 150, 200, 250, 300]
+batch_size_list = [4, 8, 16, 32]
+learning_rate_list = [0.00001, 0.0001, 0.001, 0.01]
+activation_list = ['linear', 'relu', 'tahn']
+
+qntEpocas = 5
 
 best_score = float('inf')
 best_params = {}
 
-# Realizar a pesquisa em grade manualmente
-for neurons in neurons_list:
-    for batch_size in batch_size_list:
-        for learning_rate in learning_rate_list:
-            for activation in activation_list:
-                print(f"Testing model with neurons={neurons}, batch_size={batch_size}, learning_rate={learning_rate}, activation={activation}")
-                
-                # Criar e compilar o modelo
-                model = create_model(neurons=neurons, batch_size=batch_size, learning_rate=learning_rate, activation=activation)
-                
-                # Treinar o modelo
-                history = model.fit(X_train, y_train, batch_size=batch_size, epochs=500, verbose=0, validation_split=0.2)
-                
-                # Avaliar o modelo
-                score = model.evaluate(X_val, y_val)
-                
-                # Atualizar os melhores hiperparâmetros se necessário
-                if score < best_score:
-                    best_score = score
-                    best_params = {'neurons': neurons, 'batch_size': batch_size, 'learning_rate': learning_rate, 'activation': activation}
+with open('resultados.csv', 'a', newline='') as f:
+    writer = csv.writer(f)
+    # Se o arquivo estiver vazio, escreva o cabeçalho
+    if f.tell() == 0:
+        writer.writerow(['neurons', 'batch_size', 'learning_rate', 'activation', 'score'])
+    
+    # Realizar a pesquisa em grade manualmente
+    for neurons in neurons_list:
+        for batch_size in batch_size_list:
+            for learning_rate in learning_rate_list:
+                for activation in activation_list:
+                    print(f"Testing model with neurons={neurons}, batch_size={batch_size}, learning_rate={learning_rate}, activation={activation}")
+                    
+                    # Criar e compilar o modelo
+                    model = create_model(neurons=neurons, batch_size=batch_size, learning_rate=learning_rate, activation=activation)
+                    
+                    # Treinar o modelo
+                    history = model.fit(X_train, y_train, batch_size=batch_size, epochs=qntEpocas, verbose=0, validation_split=0.2)
+                    
+                    # Avaliar o modelo
+                    score = model.evaluate(X_val, y_val)
+                    
+                    # Atualizar os melhores hiperparâmetros se necessário
+                    if score < best_score:
+                        best_score = score
+                        best_params = {'neurons': neurons, 'batch_size': batch_size, 'learning_rate': learning_rate, 'activation': activation}
+                    
+                    # Escrever os resultados no arquivo CSV
+                    writer.writerow([neurons, batch_size, learning_rate, activation, score])
 
+# Imprimir os melhores parâmetros e o melhor score
 print("Melhores parâmetros encontrados: ", best_params)
 print("Melhor score encontrado: ", best_score)
