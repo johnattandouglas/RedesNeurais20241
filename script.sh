@@ -7,8 +7,8 @@
 #SBATCH -p short # Se vai ser um experimento tipo long (Até 7 dias ) ou  short (até 2 dias)
 #SBATCH --mail-type=BEGIN,END,FAIL # quais ocorrências eu quero ser notificado por e-mail
 #SBATCH --mail-user=jdfv@cin.ufpe.br
-#SBATCH --output=out.text
-#SBATCH --error=err.text
+# SBATCH --output=job_output.txt
+# SBATCH --error=job_error.txt
 
 module load Python/3.10
 

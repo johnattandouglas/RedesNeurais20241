@@ -1,7 +1,7 @@
 
 import numpy as np
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # 0 (default), 1 (WARNING), 2 (ERROR), 3 (FATAL)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0' # 0 (default), 1 (WARNING), 2 (ERROR), 3 (FATAL)
 import tensorflow as tf
 import pandas as pd
 
