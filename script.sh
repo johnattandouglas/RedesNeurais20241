@@ -11,7 +11,7 @@
 # SBATCH --error=job_error.txt
 
 # carregar versão python
-module load Python/3.9
+module load Python/3.10
 # Ativando ambiente
 source $HOME/lorien/bin/activate
 
