@@ -7,7 +7,6 @@ import pandas as pd
 from sklearn import metrics
 from sklearn.model_selection import GridSearchCV
 from tensorflow import keras
-from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 from keras.models import Model
 from keras.utils import plot_model
 from keras.callbacks import EarlyStopping
@@ -105,30 +104,49 @@ n_features_out = y.shape[2]
 # print(n_steps_in, n_features_in)
 # print(n_steps_out, n_features_out)
 
+
+
+# ________________________ Divisão dos dados ________________________ 
+
+
 # Função para criar e compilar o modelo com os hiperparâmetros específicos
-def create_model(batch_size=256, learning_rate=0.0008, activation='relu'):
+def create_model(neurons=100, batch_size=256, learning_rate=0.0008, activation='relu'):
     inputs = Input(shape=(n_steps_in, n_features_in))
-    layer2 = LSTM(192, activation=activation, return_sequences=True)(inputs)
+    layer2 = LSTM(neurons, activation=activation, return_sequences=True)(inputs)
     output = tf.keras.layers.TimeDistributed(Dense(n_features_out))(layer2)
     model = Model(inputs=inputs, outputs=output)
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), loss='mse')
     return model
 
-# Criar o wrapper do modelo para o scikit-learn
-modelo = KerasRegressor(build_fn=create_model, verbose=0)
+# Definir os parâmetros que você deseja testar
+neurons_list = [100, 200, 300]
+batch_size_list = [4, 20, 64]
+learning_rate_list = [0.0001, 0.0005]
+activation_list = ['relu', 'tanh']
 
-# Definir os parâmetros que você deseja testar no grid search
-param_grid = {
-    'batch_size': [4, 20, 64],
-    'learning_rate': [0.0001, 0.0005],
-    'activation': ['relu', 'tanh']
-    # 'activation': ['relu', 'tanh', 'linear']
-}
+best_score = float('inf')
+best_params = {}
 
-# Realizar o grid search
-grid_search = GridSearchCV(estimator=modelo, param_grid=param_grid, cv=3)
-grid_result = grid_search.fit(X_train, y_train)
+# Realizar a pesquisa em grade manualmente
+for neurons in neurons_list:
+    for batch_size in batch_size_list:
+        for learning_rate in learning_rate_list:
+            for activation in activation_list:
+                print(f"Testing model with neurons={neurons}, batch_size={batch_size}, learning_rate={learning_rate}, activation={activation}")
+                
+                # Criar e compilar o modelo
+                model = create_model(neurons=neurons, batch_size=batch_size, learning_rate=learning_rate, activation=activation)
+                
+                # Treinar o modelo
+                history = model.fit(X_train, y_train, batch_size=batch_size, epochs=500, verbose=0, validation_split=0.2)
+                
+                # Avaliar o modelo
+                score = model.evaluate(X_val, y_val)
+                
+                # Atualizar os melhores hiperparâmetros se necessário
+                if score < best_score:
+                    best_score = score
+                    best_params = {'neurons': neurons, 'batch_size': batch_size, 'learning_rate': learning_rate, 'activation': activation}
 
-# Exibir os melhores parâmetros encontrados
-print("Melhores parâmetros encontrados: ", grid_result.best_params_)
-print("Melhor score encontrado: ", grid_result.best_score_)
+print("Melhores parâmetros encontrados: ", best_params)
+print("Melhor score encontrado: ", best_score)
