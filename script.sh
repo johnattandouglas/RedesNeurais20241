@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=GridSearchProjetoRedesNeurais
+#SBATCH --job-name=GridSearch
 #SBATCH --ntasks=1
 #SBATCH --mem 8G 
 #SBATCH -c 1 	 # Total de cores que quero utilizar
@@ -10,11 +10,9 @@
 # SBATCH --output=job_output.txt
 # SBATCH --error=job_error.txt
 
+# carregar versão python
 module load Python/3.9
-
-# Ativando o módulo
-source lorien/bin/activate
-
-pip install -r ../requirements.txt # instalando dependências necessárias
+# Ativando ambiente
+source $HOME/lorien/bin/activate
 
 python gridsearch.py
