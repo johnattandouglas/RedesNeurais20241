@@ -10,10 +10,10 @@
 # SBATCH --output=job_output.txt
 # SBATCH --error=job_error.txt
 
-module load Python/3.10
+module load Python/3.9
 
 # Ativando o módulo
-source $HOME/lorien/bin/activate
+source lorien/bin/activate
 
 pip install -r ../requirements.txt # instalando dependências necessárias
 
