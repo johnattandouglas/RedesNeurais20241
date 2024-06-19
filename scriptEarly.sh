@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=GSEarly
 #SBATCH --ntasks=1
-# SBATCH --cpus-per-task=16
+# SBATCH --cpus-per-task=8
 #SBATCH --mem 32G 
-#SBATCH -c 16 	 # Total de cores que quero utilizar
+#SBATCH -c 8 	 # Total de cores que quero utilizar
 #SBATCH --gpus=1 # total de GPUs que vou usar
 #SBATCH -p short # Se vai ser um experimento tipo long (Até 7 dias ) ou  short (até 2 dias)
 #SBATCH --mail-type=BEGIN,END,FAIL # quais ocorrências eu quero ser notificado por e-mail
