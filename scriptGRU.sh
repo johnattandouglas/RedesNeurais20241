@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=GSEarly
+#SBATCH --job-name=GridSearch
 #SBATCH --ntasks=1
 # SBATCH --cpus-per-task=4
 #SBATCH --mem 16G 
@@ -16,4 +16,4 @@ module load Python/3.10
 # Ativando ambiente
 source $HOME/lorien/bin/activate
 
-python gridSearchEarly.py
+python gridsearchGRU.py

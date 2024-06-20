@@ -109,11 +109,11 @@ n_features_out = y.shape[2]
 inputs = Input(shape=(n_steps_in, n_features_in))
 #layer1 = LSTM(192, activation='relu')(inputs)
 #repeat = tf.keras.layers.RepeatVector(n_steps_out)(layer1)
-layer2 = LSTM(192, activation='relu', return_sequences=True)(inputs)
+layer2 = LSTM(50, activation='sigmoid', return_sequences=True)(inputs)
 output = tf.keras.layers.TimeDistributed(Dense(n_features_out))(layer2)
 model = tf.keras.Model(inputs=inputs, outputs=output)
 
-model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0008), loss='mse')
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss='mse')
 # print(model.summary())
 
 monitor = EarlyStopping(monitor='val_loss',
@@ -127,7 +127,7 @@ history = model.fit(X_train, y_train,
                     validation_data=(X_val, y_val),
                     callbacks=[monitor],
                     verbose=1,
-                    batch_size=256,
+                    batch_size=4,
                     epochs=500,
                     validation_split=0.2)
 
