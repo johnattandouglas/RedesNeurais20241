@@ -122,15 +122,15 @@ def create_model(neurons, batch_size, learning_rate, activation):
 
 
 # Parametros de teste
-neurons_list = [50, 100, 150, 200, 250, 300]
-batch_size_list = [4, 8, 16, 32, 64, 128, 256]
-learning_rate_list = [0.00001, 0.0001, 0.001]
+neurons_list = [350, 400]
+batch_size_list = [4]
+learning_rate_list = [0.001]
 activation_list = ['linear', 'relu', 'tanh']
 
-# neurons_list = [300]
-# batch_size_list = [32, 256]
-# learning_rate_list = [ 0.001]
-# activation_list = ['relu', 'tanh']
+# neurons_list = [50, 100, 150, 200, 250, 300]
+# batch_size_list = [4, 8, 16, 32, 64, 128, 256]
+# learning_rate_list = [0.00001, 0.0001, 0.001]
+# activation_list = ['linear', 'relu', 'tanh']
 
 
 qntEpocas = 500
