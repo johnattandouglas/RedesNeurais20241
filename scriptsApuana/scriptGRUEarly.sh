@@ -16,4 +16,4 @@ module load Python/3.10
 # Ativando ambiente
 source $HOME/lorien/bin/activate
 
-python gridsearchEarlyGRU.py
+python gridSearchEarlyGRU.py

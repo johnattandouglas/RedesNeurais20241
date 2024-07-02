@@ -11,7 +11,7 @@ from keras.models import Model
 from keras.utils import plot_model
 from keras.callbacks import EarlyStopping
 # from keras.models import Modelconda 
-from keras.layers import Input, LSTM, Dense, RepeatVector, TimeDistributed
+from keras.layers import Input, LSTM, Dense, RepeatVector, TimeDistributed, GRU
 
 from helperFunctions import split_dataset_by_window, split_dataset, scaler, printFeatOutput, find_by_average_error
 from plots import plot_epoch_history, plot_results
@@ -109,7 +109,7 @@ n_features_out = y.shape[2]
 inputs = Input(shape=(n_steps_in, n_features_in))
 #layer1 = LSTM(192, activation='relu')(inputs)
 #repeat = tf.keras.layers.RepeatVector(n_steps_out)(layer1)
-layer2 = LSTM(50, activation='sigmoid', return_sequences=True)(inputs)
+layer2 = GRU(350, activation='linear', return_sequences=True)(inputs)
 output = tf.keras.layers.TimeDistributed(Dense(n_features_out))(layer2)
 model = tf.keras.Model(inputs=inputs, outputs=output)
 
@@ -130,5 +130,7 @@ history = model.fit(X_train, y_train,
                     batch_size=4,
                     epochs=500,
                     validation_split=0.2)
+
+print("Score: ", model.evaluate(X_test, y_test))
 
 plot_epoch_history(history)

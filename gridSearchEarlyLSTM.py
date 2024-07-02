@@ -1,3 +1,5 @@
+# # Grid Search com Early Stopping
+# ## LSTM
 
 import numpy as np
 import os
@@ -115,7 +117,9 @@ def create_model(neurons, batch_size, learning_rate, activation):
     layer2 = LSTM(neurons, activation=activation, return_sequences=True)(inputs)
     output = tf.keras.layers.TimeDistributed(Dense(n_features_out))(layer2)
     model = Model(inputs=inputs, outputs=output)
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), loss='mse')
+    model.compile(
+       optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+       loss='mse')
     return model
 
 # ________________________ GRID SEARCH ________________________ 
@@ -150,20 +154,35 @@ with open('resultadosEarly.csv', 'a', newline='') as f:
     writer = csv.writer(f)
     # Se o arquivo estiver vazio, escreva o cabeçalho
     if f.tell() == 0:
-        writer.writerow(['neurons', 'batch_size', 'learning_rate', 'activation', 'score'])
+        writer.writerow(['neurons',
+                         'batch_size',
+                         'learning_rate',
+                         'activation',
+                         'score'])
     
     # Realizar a pesquisa em grade manualmente
     for neurons in neurons_list:
         for batch_size in batch_size_list:
             for learning_rate in learning_rate_list:
                 for activation in activation_list:
-                    print(f"Testing model with neurons={neurons}, batch_size={batch_size}, learning_rate={learning_rate}, activation={activation}")
+                    print(f"Testing model with neurons={neurons},
+                          batch_size={batch_size},
+                          learning_rate={learning_rate},
+                          activation={activation}")
                     
                     # Criar e compilar o modelo
-                    model = create_model(neurons=neurons, batch_size=batch_size, learning_rate=learning_rate, activation=activation)
+                    model = create_model(neurons=neurons,
+                                         batch_size=batch_size,
+                                         learning_rate=learning_rate,
+                                         activation=activation)
                     
                     # Treinar o modelo
-                    history = model.fit(X_train, y_train,  callbacks=[monitor], batch_size=batch_size, epochs=qntEpocas, verbose=0, validation_split=0.2)
+                    history = model.fit(X_train, y_train,
+                                        callbacks=[monitor],
+                                        batch_size=batch_size,
+                                        epochs=qntEpocas,
+                                        verbose=0,
+                                        validation_split=0.2)
                     
                     # Avaliar o modelo
                     score = model.evaluate(X_val, y_val)
@@ -171,10 +190,17 @@ with open('resultadosEarly.csv', 'a', newline='') as f:
                     # Atualizar os melhores hiperparâmetros se necessário
                     if score < best_score:
                         best_score = score
-                        best_params = {'neurons': neurons, 'batch_size': batch_size, 'learning_rate': learning_rate, 'activation': activation}
+                        best_params = {'neurons': neurons,
+                                       'batch_size': batch_size,
+                                       'learning_rate': learning_rate,
+                                       'activation': activation}
                     
                     # Escrever os resultados no arquivo CSV
-                    writer.writerow([neurons, batch_size, learning_rate, activation, score])
+                    writer.writerow([neurons,
+                                     batch_size,
+                                     learning_rate,
+                                     activation,
+                                     score])
 
 # Imprimir os melhores parâmetros e o melhor score
 print("Melhores parâmetros encontrados: ", best_params)
